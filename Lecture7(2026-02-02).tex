@@ -1,0 +1,155 @@
+
+\documentclass[11pt]{article}
+
+% -------------------- Packages --------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[listings]{tcolorbox}
+\usepackage{colortbl}
+\usepackage{hyperref}   
+
+% ---------- Modular row commands ----------
+\newcommand{\memrow}[1]{\texttt{#1} \\ \hline}
+\newcommand{\highlightmemrow}[1]{\cellcolor{gray!20}\texttt{#1} \\ \hline}
+
+% ---------- Memory table environment ----------
+\newenvironment{memorytable}[1][4cm]{
+\begin{center}
+\begin{tabular}{|p{#1}|}
+\hline
+}{
+\end{tabular}
+\end{center}
+}
+
+% -------------------- Header / Footer --------------------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ITI1121 -- Introduction To Computing}
+\rhead{Lecture 7}
+\cfoot{\thepage}
+
+% -------------------- Code Styling --------------------
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{teal},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    tabsize=2
+}
+
+% -------------------- Custom Commands --------------------
+\newcommand{\topic}[1]{\section*{#1}}
+\newcommand{\subtopic}[1]{\subsection*{#1}}
+\newcommand{\important}{\textbf{Important: }}
+\newcommand{\defn}[1]{\textbf{Definition:} #1}
+
+
+
+% -------------------- Document --------------------
+\begin{document}
+
+% -------------------- Title --------------------
+\begin{center}
+    {\Large \textbf{ITI1121 -- Introduction To Computing}}\\
+    Lecture 7 -- OOP and Inheritance\\
+    Date: Febuary 2, 2025
+\end{center}
+\topic{Method Overloading Cont..}
+{Recall: Method overloading means that two methods can have the same name but
+different signatures (the signature consists of the name and formal parameters of
+a method but not the return value).} \\
+\noindent{Constructors are often overloaded, this occurs for the class Shape:}
+\begin{lstlisting}[language=Java]
+Shape() {
+    x = 0.0;
+    y = 0.0;
+}
+
+Shape(int x, int y) { 
+    this.x = x;
+    this.y = y;
+}
+\end{lstlisting}
+{Method overloading is sometimes referred as specific purpose polymorphism}
+\topic{"True" Polymorphism: Motivation 1}
+{Handling multiple datatype parameters for a specific method function.}
+{example}
+\begin{lstlisting}[language=Java]
+public boolean isLeftOf( Circle c ) {
+    return getX() < c.getX();
+}
+public boolean isLeftOf( Rectangle r ) {
+    return getX() < r.getX();
+}
+\end{lstlisting}
+{Clearly there is a problem with this, as every new shape requires a new method.}\\
+{The solution for this is using the parent class as the parameter instead of the specific shape}
+\begin{lstlisting}[language=Java]
+public boolean isLeftOf( Shape a ){
+    return getX() < s.getX();
+}
+\end{lstlisting}
+\topic{Types}
+{Assignment of a value of compile-time reference type S (source) to a variable of
+compile-time reference type T (target) is checked as follows. \\ If S is a class type:}
+\begin{itemize}
+    \item If T is a class type, then S must either be the same class as T, or S must
+be a subclass of T, or a compile-time error occurs
+\end{itemize}
+\begin{lstlisting}[language=Java]
+Shape s;
+Rectangle r;
+r = new Rectangle(0,0,1,1);
+s = r;
+\end{lstlisting}
+{This statement is valid, but "r = s" is not. Rectangle class cannot be coverted to Shape class. After "s == r" s turns to Rectangle class and therefore cannot be changed back into Shape class}
+\topic{Abstraction}
+\begin{itemize}
+    \item Abstract classes cannot be initialized but can contain abstract methods AND regular methods
+    \item Abstract methods can only be called in Abstract classes.
+    \item A absttract class variable can stilled be initialized but not as an object
+\end{itemize}
+\begin{lstlisting}{language=Java}
+public abstract class Shape {
+    ...
+
+    public abstract double area() { 
+        ...
+    }
+}
+
+Shape t; //compiles
+Shape j = new Shape(); //will not compile as constructor is now a skeleton method.
+\end{lstlisting}
+{in the case:}
+\begin{lstlisting}[language=Java]
+Shape s;
+s = new Rectangle();
+s.area(); 
+\end{lstlisting}
+\begin{itemize}
+    \item Java will called the overriden method from the Rectangle subclass in this case.
+\end{itemize}
+\topic{Interfaces}
+{Interfaces are completely "abstract classes" in the sense that the methods are empty.}
+\begin{itemize}
+    \item Uses implements keyword.
+    \item Are NOT used to create objects 
+    \item Methods require @override in order for implementation
+    \item No constructors
+\end{itemize}
+\end{document}
+
