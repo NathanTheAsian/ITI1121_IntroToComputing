@@ -1,0 +1,216 @@
+\documentclass[11pt]{article}
+
+% -------------------- Packages --------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[listings]{tcolorbox}
+\usepackage{colortbl}
+
+% ---------- Modular row commands ----------
+\newcommand{\memrow}[1]{\texttt{#1} \\ \hline}
+\newcommand{\highlightmemrow}[1]{\cellcolor{gray!20}\texttt{#1} \\ \hline}
+
+% ---------- Memory table environment ----------
+\newenvironment{memorytable}[1][4cm]{
+\begin{center}
+\begin{tabular}{|p{#1}|}
+\hline
+}{
+\end{tabular}
+\end{center}
+}
+
+% -------------------- Header / Footer --------------------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ITI1121 -- Introduction To Computing}
+\rhead{Lecture 4}
+\cfoot{\thepage}
+
+% -------------------- Code Styling --------------------
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{teal},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    tabsize=2
+}
+
+% -------------------- Custom Commands --------------------
+\newcommand{\topic}[1]{\section*{#1}}
+\newcommand{\subtopic}[1]{\subsection*{#1}}
+\newcommand{\important}{\textbf{Important: }}
+\newcommand{\defn}[1]{\textbf{Definition:} #1}
+
+
+
+% -------------------- Document --------------------
+\begin{document}
+
+% -------------------- Title --------------------
+\begin{center}
+    {\Large \textbf{ITI1121 -- Introduction To Computing}}\\
+    Lecture 4 -- OOP\\
+    Date: January 26, 2025
+\end{center}
+\topic{Class}
+What goes into a class:
+\begin{itemize}
+    \item  variables, methods, (nested) classes; (3)
+    \item each belongs either to the class or the instance; (2)
+    \item each can be public, package, (protected) or private; (4)
+    \item each can be final or not. (2)
+\end{itemize}
+Declaring classes:
+\begin{lstlisting}[language=Java]
+public class PublicClass {
+    public static int classVariable;
+    ...
+}
+\end{lstlisting}
+Declaring instance variables:
+\begin{lstlisting}[language=Java]
+public class PublicClass {
+    public int instanceVariable;
+    ...
+}
+\end{lstlisting}
+% -------------------- Declaration Types --------------------
+\topic{Declaration Types}
+\begin{itemize}
+    \item \textbf{public}: accessible from any other class. 
+    \item \textbf{private}: accessible only within the declaring class. Use for encapsulation.
+    \item \textbf{protected}: accessible within the same package and subclasses.
+    \item \textbf{package-private (default)}: no modifier; accessible only within the same package.
+    \item \textbf{static}: belongs to the class rather than an instance (class-level).
+    \item \textbf{final}: value cannot change (for variables) or class/method cannot be extended/overridden.
+    \item \textbf{abstract}: declares a method without implementation or a class that cannot be instantiated.
+    \item \textbf{synchronized}: method or block that controls concurrent access in multi-threading.
+    \item \textbf{transient}: field not serialized when using Java serialization.
+    \item \textbf{volatile}: tells the JVM that a field may be modified by multiple threads; ensures visibility.
+    \item \textbf{native}: indicates implementation is provided in platform-specific code (e.g., C/C++).
+    \item \textbf{strictfp}: restricts floating-point calculations to ensure portability of floating-point results.
+\end{itemize}
+\topic {Ticket Example}
+\begin{lstlisting}[language=Java]
+public class Ticket {
+    private staic int lastSerialNumber = 0; 
+    private int serialNumber; 
+
+    public Ticket() {
+        this.serialNumber = lastSerialNumber; 
+        lastSerialNumber++; //increments the last serial number
+    }
+
+    public int getSerialNumber() {
+        return this.serialNumber;
+    }
+
+    public static int getLastSerialNumber() {
+        return lastSerialNumber;
+    }
+}
+\end{lstlisting}
+\topic{Test file}
+\begin{lstlisting}[language=Java]
+public class Test {
+    public static void main (String args[]) {
+
+        System.out.println(Ticket.lastSerialNumber) //to call a static variable from a seperate class, class name is required.
+        System.out.println(Ticket.getLastSerialNumber()); //getLastSerialNumber() is static therefore can be called without an initialized object .
+
+        Ticket t1 = new Ticket(); //an instance is object created when its called with "new"
+        Ticket t2 = new Ticket();
+        Ticket t3 = new Ticket();
+
+        System.out.println(t1.getSerialNumber);
+        System.out.println(t2.getSerialNumber);
+        System.out.println(t3.getSerialNumber);
+    }
+}
+\end{lstlisting}
+\topic{Instances, Static, etc}
+\begin{itemize}
+    \item In order to call a static variable, method, etc, from a seperate .java file, the class name is required.  
+    \item Static (explained in declaration types) allows methods and variables to be called without initialization.
+\end{itemize}
+
+% -------------------- Private constructors --------------------
+% -------------------- Constructors --------------------
+\subtopic{Constructors}
+Constructors run when an object is created with `new`. Rough JVM order when `new` is executed:
+\begin{enumerate}
+    \item Allocate memory on the heap for the new object (object header + fields).
+    \item Set all instance fields to default values (0, false, null).
+    \item Invoke the superclass constructor chain (an implicit call to `super()` is inserted if absent).
+    \item Execute instance initializers and field initializers in textual order.
+    \item Execute the body of the constructor (this is where you set field values, run validation, etc.).
+    \item Return the reference to the newly constructed object (assigned to a local variable or field).
+\end{enumerate}
+
+Notes:
+\begin{itemize}
+    \item The reference variable (e.g. `Point p`) lives where it is declared (stack for local variables, heap if stored in another object), while the object data lives on the heap.
+    \item The `this` reference inside the constructor points to the object being initialized.
+    \item If no constructor is declared, the compiler provides a default no-arg constructor.
+\end{itemize}
+
+Example (default + parameterized):
+\begin{lstlisting}[language=Java]
+public class Point {
+        int x, y;                    // fields are allocated and defaulted to 0
+        public Point() { this(0,0); } // delegates to parameterized constructor
+        public Point(int x, int y) {  // field initializers run before this body
+                this.x = x;
+                this.y = y;
+        }
+}
+\end{lstlisting}
+
+\subtopic{Private constructors}
+Private constructors are used when you want to prevent callers from creating instances directly. Common cases:
+\begin{itemize}
+    \item \textbf{Utility / constant-holder classes:} prevent instantiation when all members are static.
+\end{itemize}
+\begin{lstlisting}[language=Java]
+public final class Utils {
+    private Utils() { throw new AssertionError("No instances."); }
+    public static int add(int a, int b) { return a + b; }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item \textbf{Singletons:} control instance creation (or use an enum singleton).
+\end{itemize}
+\begin{lstlisting}[language=Java]
+public class Singleton {
+    private static final Singleton INSTANCE = new Singleton();
+    private Singleton() {}
+    public static Singleton getInstance() { return INSTANCE; }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item \textbf{Factory / builder enforcement:} force use of factory methods or builders for validation or different implementations.
+\end{itemize}
+\begin{lstlisting}[language=Java]
+public class Person {
+    private final String name;
+    private Person(String name) { this.name = name; }
+    public static Person of(String name) { return new Person(name); }
+}
+\end{lstlisting}
+
+Notes: private constructors don't stop reflection by themselves; for singletons prefer enum-based singletons if serialization and reflection-safety matter.
+
+\end{document}

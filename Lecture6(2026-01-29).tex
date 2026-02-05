@@ -1,0 +1,235 @@
+
+\documentclass[11pt]{article}
+
+% -------------------- Packages --------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[listings]{tcolorbox}
+\usepackage{colortbl}
+\usepackage{hyperref}   
+
+% ---------- Modular row commands ----------
+\newcommand{\memrow}[1]{\texttt{#1} \\ \hline}
+\newcommand{\highlightmemrow}[1]{\cellcolor{gray!20}\texttt{#1} \\ \hline}
+
+% ---------- Memory table environment ----------
+\newenvironment{memorytable}[1][4cm]{
+\begin{center}
+\begin{tabular}{|p{#1}|}
+\hline
+}{
+\end{tabular}
+\end{center}
+}
+
+% -------------------- Header / Footer --------------------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ITI1121 -- Introduction To Computing}
+\rhead{Lecture 6}
+\cfoot{\thepage}
+
+% -------------------- Code Styling --------------------
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{teal},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    tabsize=2
+}
+
+% -------------------- Custom Commands --------------------
+\newcommand{\topic}[1]{\section*{#1}}
+\newcommand{\subtopic}[1]{\subsection*{#1}}
+\newcommand{\important}{\textbf{Important: }}
+\newcommand{\defn}[1]{\textbf{Definition:} #1}
+
+
+
+% -------------------- Document --------------------
+\begin{document}
+
+% -------------------- Title --------------------
+\begin{center}
+    {\Large \textbf{ITI1121 -- Introduction To Computing}}\\
+    Lecture 6 -- OOP and Inheritance\\
+    Date: January 29, 2025
+\end{center}
+\topic{Local vs Instance}
+\begin{lstlisting}[language=Java]
+public class BankAccount {
+    private double balance;
+
+    //..
+
+    public boolean transfer(BankAccount other, double amount) {
+
+        if (this == other) {
+            return false;
+        }
+        ...
+    }
+}
+\end{lstlisting}
+{Its important to optimize programs by using the right variable types. this, other and amount are all local variables. }
+\begin{itemize}
+    \item each object uses more memory than it needs to (takes local and instance variable memory)
+    \item Gets into the way of the garbage collector.
+\end{itemize}
+
+\begin{lstlisting}[language=Java]
+class A {
+
+    int[] boxes;
+
+    pubObjectIntoBoxes () {
+
+        boxes = new int[1000];  
+    }
+}
+\end{lstlisting}
+\topic{Inheritance}
+\begin{itemize}
+    \item enables class heirarchy
+    \item modular code and reusable code
+\end{itemize}
+{Subclass, child class, or derived class inherit traits from the parent/super class. \\eg Bird(Super) - Pidgeon(Sub)}
+\begin{itemize}
+    \item Java uses the "Is a" relationship expressed by "extends" in the class line.
+\end{itemize}
+\topic{What Gets Inherited}
+{A class inherits all the characteristics (variables and methods) of its superclass(es)}
+\begin{itemize}
+    \item a subclass inherits all the methods and variables of its superclass(es);
+    \item a subclass can introduce/add new methods and variables;
+    \item a subclass can override the methods of its superclass(@Overide).
+\end{itemize}
+{Because of 2 and 3, the subclass is a specialization of the superclass, i.e. the
+superclass is more general than its subclasses.}
+\topic{Shape Class Example}
+\begin{lstlisting}[language=Java]
+public class ShapeTest {
+
+    public static void main(String[] args) {
+        Circle c = new Circle(5,5,10);
+        Rectangle r = new Rectangle(10, 10, 10, 20);
+
+        System.out.println(c.toString());
+        System.out.println(r.toString());
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=Java]
+public class Shape {
+
+    protected double x; //visible to subclasses respective to subclasses in the same package.
+    protected double y;
+
+    public Shape() {
+        x = 0;
+        y = 0;
+    }
+
+    public Shape(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void moveTo(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public String toString() {
+        return "Located at (" + this.x + "," + this.y + ")";
+    }
+}   
+\end{lstlisting}
+\begin{lstlisting}[language=Java]
+public class Circle extends Shape {
+
+    private double radius;
+
+    public Circle() {
+        super(); //Calls the constructor of the immediate superclass
+        radius = 0;
+    }
+
+    public Circle(double x, double y, double radius) {
+        this.radius = radius;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public String toString() {
+        return "Circle " + super.toString() + " with radius " + radius;
+    }
+
+    
+}
+\end{lstlisting}
+\begin{lstlisting}[language=Java]
+public class Rectangle extends Shape {
+    private double width;
+    private double height;
+
+    public Rectangle() {
+        super();
+        width = 0;
+        height = 0;
+    }
+
+    public Rectangle(double x, double y, double width, double height) {
+        super(x,y);
+        this.width = width;
+        this.height = height;
+
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public double getHeight() {
+        return height;
+
+    }
+
+    public String toString() {
+        return "Rectangle " + super.toString() + "), width = " + width + " and height = " + height;
+    }
+}
+\end{lstlisting}
+\topic{Polymorphism}
+{From the Greek words polus = many and morphˆe = forms, literally means has
+many forms.}
+\begin{itemize}
+    \item polymorphism (overloading): a method name is associcated with
+different blocs of code
+    \item Inclusion (subtyping, data) polymorphism: an identifer (a reference variable) is associated with data of different types with the use of a subtype relation
+\end{itemize}
+\topic{Method Overloading}
+{Method overloading means that two methods can have the same name but different signatures (the signature consists of the name and formal parameters of a method but not the return value).}
+\end{document}
