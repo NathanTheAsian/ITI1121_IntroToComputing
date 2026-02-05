@@ -1,0 +1,256 @@
+
+\documentclass[11pt]{article}
+
+% -------------------- Packages --------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[listings]{tcolorbox}
+\usepackage{colortbl}
+\usepackage{hyperref}   
+
+% ---------- Modular row commands ----------
+\newcommand{\memrow}[1]{\texttt{#1} \\ \hline}
+\newcommand{\highlightmemrow}[1]{\cellcolor{gray!20}\texttt{#1} \\ \hline}
+
+% ---------- Memory table environment ----------
+\newenvironment{memorytable}[1][4cm]{
+\begin{center}
+\begin{tabular}{|p{#1}|}
+\hline
+}{
+\end{tabular}
+\end{center}
+}
+
+% -------------------- Header / Footer --------------------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ITI1121 -- Introduction To Computing}
+\rhead{Lecture 8}
+\cfoot{\thepage}
+
+% -------------------- Code Styling --------------------
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{teal},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    tabsize=2
+}
+
+% -------------------- Custom Commands --------------------
+\newcommand{\topic}[1]{\section*{#1}}
+\newcommand{\subtopic}[1]{\subsection*{#1}}
+\newcommand{\important}{\textbf{Important: }}
+\newcommand{\defn}[1]{\textbf{Definition:} #1}
+
+
+
+% -------------------- Document --------------------
+\begin{document}
+% -------------------- Title --------------------
+\begin{center}
+    {\Large \textbf{ITI1121 -- Introduction To Computing}}\\
+    Lecture 8 -- Polymorphism with Abstract Classes (Comparable / Displayable)\\
+    Date: February 5, 2026
+\end{center}
+
+\topic{Problem 1}
+{Write a polymorphic method that sorts an array of objects}
+\begin{lstlisting}[language=Java]
+public static void sort2( int[] a ) {
+    if ( a[ 0 ] > a[ 1 ] ) {
+        int tmp = a[ 0 ];
+        a[ 0 ] = a[ 1 ];
+        a[ 1 ] = tmp;
+    }
+}
+public static void sort2( Time[] a ) {
+    if ( a[ 0 ].after( a[ 1 ] ) ) {
+        Time tmp = a[ 0 ];
+        a[ 0 ] = a[ 1 ];
+        a[ 1 ] = tmp;
+    }
+}
+public static void sort2( Shape[] a ) {
+    if ( a[ 0 ].compareTo( a[ 1 ] ) > 0 ) {
+        Shape tmp = a[ 0 ];
+        a[ 0 ] = a[ 1 ];
+        a[ 1 ] = tmp;
+    }
+}
+\end{lstlisting}
+\topic{Solution 1: Super-class Comparable}
+\begin{lstlisting}[language=Java]
+abstract class Comparable {
+    public abstract int compareTo( Comparable other );
+}
+\end{lstlisting}
+\begin{itemize}
+    \item \important Element 1 is the keyword \texttt{abstract}. The implementation of \texttt{compareTo} depends on the particular type of object.
+    \item In order to find the parameter type for \texttt{compareTo}, look at how \texttt{sort2} will call it.
+\end{itemize}
+\begin{lstlisting}[language=Java]
+public class Array {
+    public static void sort2( Comparable[] myArray ) {
+        if ( myArray[ 0 ].compareTo( myArray[ 1 ] ) > 0 ) {
+            Comparable tmp;
+            tmp = myArray[ 0 ];
+            myArray[ 0 ] = myArray[ 1 ];
+            myArray[ 1 ] = tmp;
+        }
+    }
+}
+abstract class Comparable {
+    public abstract int compareTo( Comparable other );
+}
+\end{lstlisting}
+{Our first solution requires creating an abstract class called Comparable that
+contains only one method, which is abstract, the method is called compareTo.
+Any class who needs to use the (polymorphic) sort2 method must be a sub-class of
+the class Comparable (and therefore must implement the method compareTo).
+For instance, the classes Time and Shape would be modified so that both would
+be subclasses of Comparable.
+}
+
+\subtopic{A first attempt: why it fails}
+For the class \texttt{Time}, one might want to write:
+\begin{lstlisting}[language=Java]
+public class Time extends Comparable {
+    ...
+    public int compareTo( Comparable obj ) {
+        int result;
+        if ( timeInSeconds < obj.timeInSeconds ) {
+            result = -1;
+        } else if ( timeInSeconds == obj.timeInSeconds ) {
+            result = 0;
+        } else {
+            result = 1;
+        }
+        return result;
+    }
+}
+\end{lstlisting}
+This produces a compilation error because \texttt{timeInSeconds} is not defined for the type \texttt{Comparable}.
+
+\subtopic{Fix: downcasting inside compareTo}
+To access \texttt{Time}-specific fields/methods, we cast the parameter back to \texttt{Time}:
+\begin{lstlisting}[language=Java]
+public class Time extends Comparable {
+    ...
+    public int compareTo( Comparable obj ) {
+        Time other = (Time) obj;
+        int result;
+        if ( timeInSeconds < other.timeInSeconds ) {
+            result = -1;
+        } else if ( timeInSeconds == other.timeInSeconds ) {
+            result = 0;
+        } else {
+            result = 1;
+        }
+        return result;
+    }
+}
+\end{lstlisting}
+
+Similarly, the class \texttt{Shape} can be changed so that it becomes a subclass of \texttt{Comparable} and implements \texttt{compareTo}:
+\begin{lstlisting}[language=Java]
+public class Shape extends Comparable {
+    ...
+    public int compareTo( Comparable o ) {
+        Shape other = (Shape) o;
+        int result;
+        if ( area() < other.area() )
+            result = -1;
+        else if ( area() == other.area() )
+            result = 0;
+        else
+            result = 1;
+        return result;
+    }
+}
+\end{lstlisting}
+
+\subtopic{Polymorphic sorting method (2 elements)}
+Here is a method that sorts any array of \emph{two} objects, as long as their class is a subclass of \texttt{Comparable}:
+\begin{lstlisting}[language=Java]
+public static void sort2( Comparable[] a ) {
+    if ( a[ 0 ].compareTo( a[ 1 ] ) > 0 ) {
+        Comparable tmp = a[ 0 ];
+        a[ 0 ] = a[ 1 ];
+        a[ 1 ] = tmp;
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+    \item \important This solution works, but it has a weakness: it relies on casting (e.g., \texttt{(Time) obj}).
+    \item If you accidentally compare objects of different classes (e.g., a \texttt{Time} vs a \texttt{Shape}), the cast compiles but can fail at runtime with \texttt{ClassCastException}.
+    \item (Later) Generics solve this cleanly by enforcing the correct type at compile time.
+\end{itemize}
+
+\subtopic{UML-style summary (conceptual)}
+\begin{tcolorbox}[title=Class relationships, colback=white, colframe=black]
+\begin{itemize}[leftmargin=*]
+    \item \texttt{Comparable}: \texttt{+compareTo(o:Comparable): int}
+    \item \texttt{Shape} extends \texttt{Comparable}
+    \item \texttt{Circle} extends \texttt{Shape}
+    \item \texttt{Rectangle} extends \texttt{Shape}
+    \item \texttt{Time} extends \texttt{Comparable}
+\end{itemize}
+\end{tcolorbox}
+
+\subtopic{Preview: the full fix (generics / Java library)}
+\begin{itemize}
+    \item \important In Java, there is already an interface \texttt{java.lang.Comparable<T>}.
+    \item A type-safe version of this idea is:\\
+    \texttt{public static <T extends Comparable<T>> void sort2(T[] a) \{ ... \}}
+\end{itemize}
+
+\topic{Problem 2}
+Problem 2: write a (polymorphic) method that displays all the elements of an array
+(arrays of shapes, buttons, balloons, etc.).
+
+\begin{lstlisting}[language=Java]
+class Graphics {
+    public static void displayAll( Displayable[] myArray ) {
+        for ( int i = 0; i < myArray.length; i++ ) {
+            myArray[ i ].display();
+        }
+    }
+}
+\end{lstlisting}
+
+\subtopic{Solution: inherit from an abstract class Displayable}
+\begin{lstlisting}[language=Java]
+public abstract class Displayable {
+    public abstract void display();
+}
+\end{lstlisting}
+
+\begin{itemize}
+    \item Any class that should be displayable must extend \texttt{Displayable} and implement \texttt{display()}.
+    \item \important This is the same polymorphism pattern as \texttt{Comparable}: the method body depends on the specific subclass.
+\end{itemize}
+
+\subtopic{Important facts / common pitfalls}
+\begin{itemize}
+    \item \important Upcasting is safe (subclass object in a superclass variable). Downcasting can fail at runtime.
+    \item \important If a superclass reference points to a subclass object, method calls use the subclass override (dynamic dispatch).
+    \item \important When an API must work for many unrelated classes, an \emph{interface} is often a better fit than forcing a shared superclass.
+\end{itemize}
+
+\end{document}
+
