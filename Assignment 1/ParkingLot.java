@@ -127,7 +127,18 @@ public class ParkingLot {
 
 		while (scanner.hasNext()) {
 			String str = scanner.nextLine();
-			// WRITE YOUR CODE HERE!
+            
+            if(!str.contains(SECTIONER) && !str.isEmpty()){
+
+                if(numSpotsPerRow == 0){
+                    str = str.replace(SEPARATOR, "");
+                    str = str.replace(" ", "");
+                    numSpotsPerRow = str.length();
+                }
+                numRows += 1;
+            }else if(str.contains(SECTIONER)){
+                break;
+            }
 		}
 
 		scanner.close();
