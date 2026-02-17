@@ -1,7 +1,7 @@
 /**
 * This class contains one method "findAndReplace"
 *
-* @author Travis Zhang 
+* @author Nathan Ng
 */
 public class Utils {
 
