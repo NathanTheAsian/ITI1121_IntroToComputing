@@ -3,21 +3,22 @@ public class TextPost extends Post {
     private String message;
 
     public TextPost(String userName, String message) {
-      // Your code here.
+        super(userName);   // call Post constructor
+        this.message = message;
     }
 
     public String getMessage() {
-	     return message;
+        return message;
     }
 
     public String toString() {
-    	String str = new String();
-    	str = super.toString() + ", " + message;
-    	return  str;
+        String str = new String();
+        str = super.toString() + ", " + message;
+        return str;
     }
 
-  	public boolean isPopular() {
-  		// Your code here.
-  	}
-
+    @Override
+    public boolean isPopular() {
+        return getLikes() > 50;   // TextPost is popular if more than 50 likes
+    }
 }
