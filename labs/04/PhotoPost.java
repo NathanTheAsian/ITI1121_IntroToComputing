@@ -4,21 +4,23 @@ public class PhotoPost extends Post {
     private String caption;
 
     public PhotoPost(String userName, String fileName, String caption) {
-      // Your code here.
+        super(userName);        // call Post constructor
+        this.fileName = fileName;
+        this.caption = caption;
     }
 
     public String getCaption() {
-	     return caption;
+        return caption;
     }
 
     public String getFileName() {
-	     return fileName;
+        return fileName;
     }
 
     public String toString() {
-    	String str = new String();
-    	str = super.toString() + ", " + fileName + ", " + caption;
-    	return str;
+        String str = new String();
+        str = super.toString() + ", " + fileName + ", " + caption;
+        return str;
     }
 
 }
