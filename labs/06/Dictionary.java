@@ -21,11 +21,6 @@ public class Dictionary implements Map<String, Integer> {
 
     @Override
     public void put(String key, Integer value) {
-        if (contains(key)) {
-            replace(key, value);
-            return;
-        }
-
         if (count == elems.length) {
             increaseCapacity();
         }
