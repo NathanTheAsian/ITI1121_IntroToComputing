@@ -290,6 +290,48 @@ Example:
     }
 \end{lstlisting}
 the increment function doesnt actually return any real values so step 5 is skipped and the activation frame for increment(a) is destroyed with no real outcome on the main function.
+\newpage
+\topic{Array-Based Implementation of Queues}
+\bigq[What does this look like?]{CircularQueue implements Queue interface}
+\begin{lstlisting}[language=Java]
+public class CircularQueue<E> implements Queue<E> {
+
+/* public interface Queue {
+    private E[]
+    public boolean isEmpty();
+    public void enqueue(E 0);
+    public E dequeue(); 
+}
+*/
+    private E[] = q;
+    public boolean isEmpty();
+    public void enqueue(E 0);
+    public E dequeue(); 
+
+
+}
+\end{lstlisting}
+{Implementation 1}
+\begin{itemize}
+    
+    \item The front of the queue is a fixed lication, say 0. and we will use an instance favriable to indicate the location of the rear element.
+    \subitem Rear can be made to designate the first free location (instead of the element itself)
+    \subitem a queue could be implmented in the upper part of the array
+    \item Insertion (enqueue)
+    \item Removal (dequeue)
+    \subitem - All the elements must be move one position toward the front of the queue so that the fron telement remains at a fixed location, here 0.
+\end{itemize}
+{Implementation 2}
+\begin{itemize}
+    \item The front and the rear of the queue are now moving, requiring two instance variables: one pointing at the front element, other that points to the rear.
+    \subitem - Say we want to add 3 elements to a 9 block array, if there is no space left in the back, even though there is technically space in the queue, the code will crash.
+    \subitem - If array isnt full, we can shift the elements (refer as group)
+\end{itemize}
+{Implementation 3}
+\begin{itemize}
+    \item To make both operations fast, this implementation uses a circular array.
+    \item Uses modulo to change front variable in the case which front is pointing to the end indexs, but removal changes the front to the start indexes.
+\end{itemize}
 
 
 \end{document}
