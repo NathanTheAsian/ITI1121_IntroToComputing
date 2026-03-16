@@ -1,0 +1,295 @@
+\documentclass[11pt]{article}
+
+% -------------------- Packages --------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[listings]{tcolorbox}
+\tcbuselibrary{breakable}
+\usepackage{colortbl}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+
+% ---------- Modular row commands ----------
+\newcommand{\memrow}[1]{\texttt{#1} \\ \hline}
+\newcommand{\highlightmemrow}[1]{\cellcolor{gray!20}\texttt{#1} \\ \hline}
+
+% ---------- Memory table environment ----------
+\newenvironment{memorytable}[1][4cm]{
+\begin{center}
+\begin{tabular}{|p{#1}|}
+\hline
+}{
+\end{tabular}
+\end{center}
+}
+
+% ---------- Memory diagram (address -> value) ----------
+\newcommand{\memcell}[2]{\texttt{#1} & \texttt{#2} \\ \hline}
+\newcommand{\highlightmemcell}[2]{\cellcolor{gray!20}\texttt{#1} & \cellcolor{gray!20}\texttt{#2} \\ \hline}
+
+% Named cells (for drawing arrows between rows/cells)
+\newcommand{\memmark}[2]{\tikz[remember picture,baseline=(#1.base)]\node[inner sep=0pt,outer sep=0pt] (#1) {#2};}
+\newcommand{\memcellm}[4]{\memmark{#1}{\texttt{#2}} & \memmark{#3}{\texttt{#4}} \\ \hline}
+\newcommand{\highlightmemcellm}[4]{\cellcolor{gray!20}\memmark{#1}{\texttt{#2}} & \cellcolor{gray!20}\memmark{#3}{\texttt{#4}} \\ \hline}
+
+% Draw an arrow from one named cell to another.
+% Usage: \memarrow{fromNode}{toNode}  or  \memarrow[bend left=30]{fromNode}{toNode}
+\newcommand{\memarrow}[3][bend left=20]{%
+\tikz[remember picture,overlay] \draw[-{Stealth[length=2mm,width=2mm]}] (#2.east) to[#1] (#3.east);
+}
+
+\newenvironment{memorydiagram}[1][Memory Diagram]{
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!5,
+    colframe=gray!50,
+    title={#1}
+]
+\begin{center}
+\begin{tabular}{|p{3.5cm}|p{9cm}|}
+\hline
+\textbf{Address} & \textbf{Value} \\ \hline
+}{
+\end{tabular}
+\end{center}
+\end{tcolorbox}
+}
+
+% Usage example:
+% \begin{memorydiagram}[Stack]
+%   \memcell{0x1000}{\textbf{i} = 33}
+%   \highlightmemcell{0x1004}{\textbf{p} \textrightarrow 0x2000}
+% \end{memorydiagram}
+%
+% Arrow example (nodes must be on the same page):
+% \begin{memorydiagram}[Stack]
+%   \memcellm{a1}{0x1004}{pCell}{\textbf{p} \textrightarrow 0x2000}
+% \end{memorydiagram}
+% \begin{memorydiagram}[Heap]
+%   \memcellm{a2}{0x2000}{objCell}{Point(x=1,y=2)}
+% \end{memorydiagram}
+% \memarrow{pCell}{objCell}
+
+% -------------------- Header / Footer --------------------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ITI1121 Introduction To Computing \hfill Nathan Ng}
+\cfoot{\thepage}
+
+% -------------------- Code Styling --------------------
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{teal},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    tabsize=2
+}
+
+% -------------------- Custom Commands --------------------
+\newcommand{\topic}[1]{\section*{#1}}
+\newcommand{\subtopic}[1]{\subsection*{#1}}
+\newcommand{\important}{\textbf{Important: }}
+% ---------- Definitions (boxed + auto-numbered) ----------
+\newcounter{definition}
+\newenvironment{definition}[1][]
+{%
+    \refstepcounter{definition}%
+    \begin{tcolorbox}[
+        breakable,
+        colback=gray!5,
+        colframe=gray!50,
+        title={Definition~\thedefinition\if\relax\detokenize{#1}\relax\else\ (#1)\fi}
+    ]%
+}
+{%
+    \end{tcolorbox}%
+}
+
+% One-line convenience command (keeps your original intent)
+\newcommand{\defn}[2][]{\begin{definition}[#1]#2\end{definition}}
+
+% ---------- Big Questions / Main Ideas (boxed + auto-numbered) ----------
+\newcounter{bigquestion}
+\newenvironment{bigquestion}[1][]
+{%
+    \refstepcounter{bigquestion}%
+    \begin{tcolorbox}[
+        breakable,
+        colback=gray!5,
+        colframe=gray!50,
+        title={Big Question~\thebigquestion\if\relax\detokenize{#1}\relax\else\ (#1)\fi}
+    ]%
+}
+{%
+    \end{tcolorbox}%
+}
+
+% One-line convenience command
+\newcommand{\bigq}[2][]{\begin{bigquestion}[#1]#2\end{bigquestion}}
+
+% Question + answer convenience command
+\newcommand{\bigqa}[3][]{%
+    \begin{bigquestion}[#1]
+        \textbf{Q:} #2\par\medskip
+        \textbf{A:} #3
+    \end{bigquestion}%
+}
+
+% Usage examples:
+%   \bigq{What is the main idea of today's lecture?}
+%   \bigqa[Variables]{How do variables map to memory?}{A variable is a named label for a memory location that stores a value of a specific type.}
+%   \begin{bigquestion}[Tickets]
+%     Why make a field \texttt{static}? What changes across instances?
+%   \end{bigquestion}
+
+
+
+% -------------------- Document --------------------
+\begin{document}
+
+% -------------------- Title --------------------
+\begin{center}
+    {\Large \textbf{ITI1121 -- Introduction To Computing}}\\
+\end{center}
+
+\topic{Variables}
+\defn[Variables]{A variable is a place in memory to hold a value, which we refer to using a label.}
+\begin{lstlisting}[language=Java]
+    byte i = 33;
+\end{lstlisting}
+\topic{Data Types in Java}
+\begin{itemize}
+    \item Java is a strongly typed programming language. Each variable has a size and a known type at compile time.
+    \item The type of each variable must be declared.
+\end{itemize}
+\begin{lstlisting}[language=Java]
+int i;
+i = 33;
+\end{lstlisting}
+\bigqa[Data Types]{What are data types for?}{
+    \begin{itemize}
+        \item Data types tell the compiler how much memory to allocate. 
+        \subitem Example: Instantiation of a double data type tells the compiler to allocate 8 bytes.
+        \item Data types also give information about which operations are allowed.
+        \subitem Example: When a char is declared, the compiler knows to treat it as a char. So it cannot be multiplied by a number, etc. (operations).
+    \end{itemize}
+}
+\begin{itemize}
+    \item Java has both primitive and reference data types.
+    \defn[Primitive Data Types]{A primitive data type specifies the type of a variable and the kind of values (stored at memory location) it can hold.}
+    \defn[Reference Data Types]{A reference data type references/points to the location of an object.}
+    \subsubitem - User-defined, and refers to an instance of a class.
+    \item The value of a reference variable is a memory location which points to the location of an object. 
+    \item The declaration of a reference variable only allocates memory to store the address/location of an object.
+    \subitem - These objects contain functions which return values.
+    \item Declaring a reference variable allocates memory for the location; \texttt{null} is when there is no object being referred to.
+\end{itemize}
+\topic{Memory Diagrams}
+{Below shows code and its memory diagrams.}
+\begin{lstlisting}[language=Java]
+public class Constant {
+    private String name;
+    private double value;
+    public Constant( String name, double value) {
+        this.name = name;
+        this.value = value;
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=Java]
+Constant c;
+c = new Constant("Golden ratio", 1.61803399)
+\end{lstlisting}
+\begin{memorydiagram}[Reference variable of type Constant]
+  \memcellm{a1}{c}{pCell}{}
+\end{memorydiagram}
+ \begin{memorydiagram}[Constant Class Instance]
+   \memcellm{a2}{value}{objCell}{1.61803399}
+   \memcellm{a3}{name}{objCell}{}
+\end{memorydiagram}
+\begin{memorydiagram}[String Class Instance]
+    \memcellm{a4}{}{String}{"Golden ratio"}
+\end{memorydiagram}
+\memarrow{pCell}{a2}
+\memarrow{objCell}{a4}
+Reference variable, c, is pointing to the Constant Class, which has an int variable and a String variable. But since String is also a reference type it points to the String class. 
+
+\topic{Classes}
+\defn[Auto-Boxing]{Auto boxing is when an object is declared, but is made equal to its primitive version. Java 5 and up will auto-box it and compile, Java 1.4 and under will not.}
+\begin{lstlisting}[language=Java] 
+Integer i = 1;
+\end{lstlisting}
+Java 5 treats it as:
+\begin{lstlisting}[language=Java] 
+Integer i = Integer.valueOf(1);
+\end{lstlisting}
+Java 5's implementation was deprecated since Java 9 and is now just:
+\begin{lstlisting}[language=Java] 
+Integer i = new Integer(1);
+\end{lstlisting}
+\important{Auto-Boxing will seriously affect runtime}
+
+\topic{Comparison Operators}
+Primitive variables can be compared using basic operators such as \textless , \textgreater , = etc.
+Reference variables require dedicated functions to compare the values of objects. \\In cases where technically, a basic operator compares a reference variable to reference variable, it will treat them as different objects.
+\begin{lstlisting}[language=Java] 
+MyInteger a = new MyInteger(5);
+MyInteger b = new MyInteger(5);
+
+if (a == b) {
+    System.out.println("a equals b");
+} else {
+    System.out.println("a does not equal b"); \\fuckin latex format
+}
+\end{lstlisting}
+This code will print as "a does not equal b" as Java is comparing two refrences which's value is different at memory location. \\
+This implies that if two objects point to the same object (same memory location) the latter wouldnt have printed, but rather "a equals b".
+
+\topic{Call-by-Value}
+\defn[Formal Parameter]{A formal parameter is a variable which is part of the definiition of the method}
+\defn[Actual Parameter]{The actual parameter is the real input values of the method when the method is called}
+\begin{lstlisting}
+int sum(int a, int b) { //formal parameters a, b
+    return a + b;
+}
+
+int x,y,z;
+total = sum(x,y); //actual parameters x,y
+
+\end{lstlisting}
+In Java, when a method is called the values of the actual parameters are copied to the location of the formal parameters. Below is what happens when a function is called.
+\begin{enumerate}[label=\arabic*.]
+  \item the execution of the calling method is stopped
+  \item an activation frame (activation block or record) is created (it contains the formal paramerters as well as the local variables)
+  \item the value of the actual parameters are copied to the locaiton of the formal parameters
+  \item the body of the method is executed
+  \item a return value or void is saved
+  \item activation frame is destroyed
+  \item the execution of the claling method restarts with the next instruction
+\end{enumerate}
+Example: 
+\begin{lstlisting}[language=Java]
+    public static void increment(int a) {
+        a = a + 1;
+    }
+    public static void main( String[] args) {
+        int a = 5;
+        increment(a);
+    }
+\end{lstlisting}
+the increment function doesnt actually return any real values so step 5 is skipped and the activation frame for increment(a) is destroyed with no real outcome on the main function.
+
+
+\end{document}
